@@ -1,5 +1,5 @@
 // ------------------ Imports ------------------
-import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
+import { Bot, InlineKeyboard, webhookCallback } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
 
 // ------------------ Load Stickers ------------------
 const CARD_STICKERS = await fetch(
@@ -10,7 +10,7 @@ const CARD_STICKERS = await fetch(
 const bot = new Bot(Deno.env.get("BOT_TOKEN"));
 
 // ------------------ Set Webhook ------------------
-await bot.api.setWebhook("https://trunkcat.trunks.deno.net/"); 
+// await bot.api.setWebhook("https://trunkcat.trunks.deno.net/"); 
 // Replace with your Deno Deploy app URL if different
 
 // ------------------ Game State ------------------
@@ -228,6 +228,19 @@ bot.on("callback_query:data", async ctx=>{
 });
 
 // ------------------ Start Bot ------------------
-bot.start({
-  onStart: () => console.log("Bot is running on Deno Deploy!"),
+
+const handleUpdate = webhookCallback(bot, "std/http");
+
+Deno.serve(async (req) => {
+  if (req.method === "POST") {
+    const url = new URL(req.url);
+    if (url.pathname.slice(1) === bot.token) {
+      try {
+        return await handleUpdate(req);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+  return new Response();
 });
