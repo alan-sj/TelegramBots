@@ -1,11 +1,22 @@
-import { Bot } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
-const CARD_STICKERS = await fetch("https://raw.githubusercontent.com/alan-sj/TelegramBots/main/stickers.json")
-  .then(res => res.json());
+// ------------------ Imports ------------------
+import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
 
+// ------------------ Load Stickers ------------------
+const CARD_STICKERS = await fetch(
+  "https://raw.githubusercontent.com/alan-sj/TelegramBots/main/stickers.json"
+).then(res => res.json());
+
+// ------------------ Bot Setup ------------------
 const bot = new Bot(Deno.env.get("BOT_TOKEN"));
 
+// ------------------ Set Webhook ------------------
+await bot.api.setWebhook("https://trunkcat.trunks.deno.net/"); 
+// Replace with your Deno Deploy app URL if different
+
+// ------------------ Game State ------------------
 const games = {}; // chat_id -> { type: "guess"|"blackjack", ... }
 
+// ------------------ Helpers ------------------
 function createDeck() {
   const suits = ['♠','♥','♦','♣'];
   const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -51,7 +62,7 @@ async function showHand(chatId, hand, owner="Player", hideFirst=false) {
 async function endGameMenu(chatId, message, nextGameType=null) {
   const keyboard = new InlineKeyboard()
     .text("🔄 Try Again", nextGameType || "start_guess")
-    .text("Choose Another Game", "choose_game")
+    .text("🎮 Choose Another Game", "choose_game")
     .text("❌ Exit", "exit");
   await bot.api.sendMessage(chatId, message, { reply_markup: keyboard });
 }
@@ -66,7 +77,7 @@ bot.command("start", async ctx => {
 
 // ------------------ CARD GUESS GAME ------------------
 async function startGuessGame(chatId) {
-  const deck = createDeck().sort(() => Math.random()-0.5);
+  const deck = createDeck().sort(() => Math.random() - 0.5);
   games[chatId] = { type: "guess", deck, round: 1, score: 0 };
   await sendNextGuess(chatId);
 }
@@ -151,7 +162,7 @@ async function handleGuess(ctx, guess) {
 
 // ------------------ BLACKJACK GAME ------------------
 async function startBlackjack(chatId) {
-  const deck = createDeck().sort(() => Math.random()-0.5);
+  const deck = createDeck().sort(() => Math.random() - 0.5);
   const player=[deck.pop(),deck.pop()], dealer=[deck.pop(),deck.pop()];
   games[chatId]={type:"blackjack",deck,player,dealer};
   await bot.api.sendMessage(chatId,"🃏 Blackjack Game Started!");
@@ -203,7 +214,7 @@ bot.on("callback_query:data", async ctx=>{
     await ctx.reply("Choose a game to play:", { reply_markup: keyboard });
   }
   else if(data === "exit"){
-    await ctx.reply("Thanks for playing! ");
+    await ctx.reply("Thanks for playing!");
     delete games[chatId];
   }
   else{
@@ -216,6 +227,7 @@ bot.on("callback_query:data", async ctx=>{
   await ctx.answerCallbackQuery();
 });
 
+// ------------------ Start Bot ------------------
 bot.start({
   onStart: () => console.log("Bot is running on Deno Deploy!"),
 });
