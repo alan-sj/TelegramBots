@@ -1,22 +1,14 @@
-// ------------------ Imports ------------------
 import { Bot, InlineKeyboard, webhookCallback } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
 
-// ------------------ Load Stickers ------------------
 const CARD_STICKERS = await fetch(
   "https://raw.githubusercontent.com/alan-sj/TelegramBots/main/stickers.json"
 ).then(res => res.json());
 
-// ------------------ Bot Setup ------------------
 const bot = new Bot(Deno.env.get("BOT_TOKEN"));
 
-// ------------------ Set Webhook ------------------
-// await bot.api.setWebhook("https://trunkcat.trunks.deno.net/"); 
-// Replace with your Deno Deploy app URL if different
 
-// ------------------ Game State ------------------
 const games = {}; // chat_id -> { type: "guess"|"blackjack", ... }
 
-// ------------------ Helpers ------------------
 function createDeck() {
   const suits = ['♠','♥','♦','♣'];
   const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -62,12 +54,11 @@ async function showHand(chatId, hand, owner="Player", hideFirst=false) {
 async function endGameMenu(chatId, message, nextGameType=null) {
   const keyboard = new InlineKeyboard()
     .text("🔄 Try Again", nextGameType || "start_guess")
-    .text("🎮 Choose Another Game", "choose_game")
+    .text("Choose Another Game", "choose_game")
     .text("❌ Exit", "exit");
   await bot.api.sendMessage(chatId, message, { reply_markup: keyboard });
 }
 
-// ------------------ Start Menu ------------------
 bot.command("start", async ctx => {
   const keyboard = new InlineKeyboard()
     .text("Card Guess Game", "start_guess")
@@ -165,11 +156,11 @@ async function startBlackjack(chatId) {
   const deck = createDeck().sort(() => Math.random() - 0.5);
   const player=[deck.pop(),deck.pop()], dealer=[deck.pop(),deck.pop()];
   games[chatId]={type:"blackjack",deck,player,dealer};
-  await bot.api.sendMessage(chatId,"🃏 Blackjack Game Started!");
+  await bot.api.sendMessage(chatId,"Blackjack Game Started!");
   await showHand(chatId, player,"Player");
   await showHand(chatId, dealer,"Dealer",true);
   const keyboard=new InlineKeyboard().text("Hit","hit").text("Stand","stand");
-  await bot.api.sendMessage(chatId,"👉 Your move:",{reply_markup:keyboard});
+  await bot.api.sendMessage(chatId,"Your move:",{reply_markup:keyboard});
 }
 
 async function handleBlackjack(ctx, action){
