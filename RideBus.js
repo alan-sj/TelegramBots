@@ -72,23 +72,23 @@ export async function handleGuess(ctx, guess) {
       }
       break;
     case 3:
-  if (!game.prevCard1 || !game.prevCard2) {
+      if (!game.prevCard1 || !game.prevCard2) {
     // Defensive check: if somehow previous cards are missing, use current card as prev
-    game.prevCard1 = game.prevCard1 || nextCard;
-    game.prevCard2 = game.prevCard2 || nextCard;
-    correct = true; // continue game
-  } else {
-    const low = Math.min(cardValue(game.prevCard1), cardValue(game.prevCard2));
-    const high = Math.max(cardValue(game.prevCard1), cardValue(game.prevCard2));
-    const val = cardValue(nextCard);
+        game.prevCard1 = game.prevCard1 || nextCard;
+        game.prevCard2 = game.prevCard2 || nextCard;
+        correct = true; // continue game
+      } else {
+        const low = Math.min(cardValue(game.prevCard1), cardValue(game.prevCard2));
+        const high = Math.max(cardValue(game.prevCard1), cardValue(game.prevCard2));
+        const val = cardValue(nextCard);
 
-    correct = (guess === "inside" && val > low && val < high) ||
+        correct = (guess === "inside" && val > low && val < high) ||
               (guess === "outside" && (val < low || val > high));
 
     // Optionally update previous cards for next inside/outside check
-    game.prevCard1 = game.prevCard2;
-    game.prevCard2 = nextCard;
-  }
+        game.prevCard1 = game.prevCard2;
+        game.prevCard2 = nextCard;
+    }
   break;
 
     case 4: correct = guess === nextCard.slice(-1); break;
