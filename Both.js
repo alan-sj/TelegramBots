@@ -1,5 +1,4 @@
-import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@1.38.2/mod.ts";
-
+import { Bot } from "https://deno.land/x/grammy@v1.30.0/mod.ts";
 const CARD_STICKERS = await fetch("https://raw.githubusercontent.com/alan-sj/TelegramBots/main/stickers.json")
   .then(res => res.json());
 
