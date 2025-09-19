@@ -200,7 +200,7 @@ bot.on("callback_query:data", async ctx=>{
   else if(data==="start_blackjack") await startBlackjack(chatId);
   else if(data === "choose_game"){
     const keyboard = new InlineKeyboard()
-      .text("Card Guess Game", "start_guess")
+      .text("Ride the Bus Game", "start_guess")
       .text("Blackjack", "start_blackjack");
     await ctx.reply("Choose a game to play:", { reply_markup: keyboard });
   }
