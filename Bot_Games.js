@@ -124,18 +124,35 @@ async function handleGuess(ctx, guess) {
            (guess==="lower" && cardValue(nextCard)<cardValue(prev))) correct=true;
       }
       break;
-    case 3:
-      if(!game.prevCard1){game.prevCard1=nextCard; correct=true;}
-      else{
-        const val1=cardValue(game.prevCard1);
-        const val2=cardValue(game.prevCard2);
-        const low=Math.min(val1,val2), high=Math.max(val1,val2);
-        const nextVal=cardValue(nextCard);
-        if((guess==="inside" && nextVal>low && nextVal<high) ||
-           (guess==="outside" && (nextVal<low||nextVal>high))) correct=true;
-        game.prevCard1=game.prevCard2; game.prevCard2=nextCard;
-      }
-      break;
+   case 3:
+    // If this is the first card of this round, just store it
+    if(!game.prevCard1) {
+        game.prevCard1 = nextCard;
+        correct = true; // automatically correct for the first shown card
+    } 
+    // If second card hasn't been set, store it too
+    else if(!game.prevCard2) {
+        game.prevCard2 = nextCard;
+        correct = true; // still showing second card, no guess yet
+    } 
+    else {
+        // Both previous cards exist, now the player guesses
+        const val1 = cardValue(game.prevCard1);
+        const val2 = cardValue(game.prevCard2);
+        const low = Math.min(val1, val2);
+        const high = Math.max(val1, val2);
+        const nextVal = cardValue(nextCard);
+
+        if((guess === "inside" && nextVal > low && nextVal < high) ||
+           (guess === "outside" && (nextVal < low || nextVal > high))) {
+            correct = true;
+        }
+
+        // Shift cards: second previous becomes first, nextCard becomes second
+        game.prevCard1 = game.prevCard2;
+        game.prevCard2 = nextCard;
+    }
+    break;
     case 4: if(guess===nextCard.slice(-1)) correct=true; break;
   }
 
